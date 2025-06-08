@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const atCookie = request.cookies.get("__at__")?.value;
+  // const atCookie = request.cookies.get("__at__")?.value;
+  const atCookie = request.cookies.get("__at__");
 
   if (pathname === "/login") {
     return NextResponse.next();
