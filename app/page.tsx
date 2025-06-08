@@ -1,103 +1,155 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { formatBirthDate } from "@/util/birth-format";
+import { fetchUsers } from "./action";
+import Link from "next/link";
+
+const consonants = ["ㄱ", "ㄴ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅅ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
+
+// 한글 초성 추출 함수
+function getInitialConsonant(str: string) {
+  const cho = [
+    "ㄱ",
+    "ㄲ",
+    "ㄴ",
+    "ㄷ",
+    "ㄸ",
+    "ㄹ",
+    "ㅁ",
+    "ㅂ",
+    "ㅃ",
+    "ㅅ",
+    "ㅆ",
+    "ㅇ",
+    "ㅈ",
+    "ㅉ",
+    "ㅊ",
+    "ㅋ",
+    "ㅌ",
+    "ㅍ",
+    "ㅎ",
+  ];
+
+  if (!str || str.length === 0) {
+    return "";
+  }
+
+  const code = str.charCodeAt(0) - 0xac00;
+
+  if (code < 0 || code > 11171) {
+    return str[0];
+  }
+
+  return cho[Math.floor(code / 588)];
+}
+
+export default function Page() {
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedConsonant, setSelectedConsonant] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await fetchUsers();
+        setUsers(data);
+      } catch (error) {
+        console.error("사용자 불러오기 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const handleClick = (userId: number) => {
+    router.push(`/${userId}`);
+  };
+
+  const filteredUsers = selectedConsonant
+    ? users.filter((user) => getInitialConsonant(user.name) === selectedConsonant)
+    : users;
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="flex flex-col items-center">
+      <strong className="text-2xl mb-4">관리페이지 - 환자 명단</strong>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      <div className="flex gap-2 mb-4 flex-wrap justify-center">
+        <button
+          className={`px-3 rounded border ${
+            selectedConsonant === null ? "bg-blue-500 text-white" : "bg-white text-black"
+          }`}
+          onClick={() => setSelectedConsonant(null)}
+        >
+          전체
+        </button>
+        {consonants.map((c) => (
+          <button
+            key={c}
+            className={`px-4 rounded border ${
+              selectedConsonant === c ? "bg-blue-500 text-white" : "bg-white text-black"
+            }`}
+            onClick={() => setSelectedConsonant(c)}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            {c}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <p className="text-gray-400 p-4">불러오는 중...</p>
+      ) : filteredUsers.length === 0 ? (
+        <table>
+          <thead>
+            <tr>
+              <th>이름</th>
+              <th>년월일</th>
+              <th>등록번호</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colSpan={3}>사용자가 없습니다.</td>
+            </tr>
+          </tbody>
+        </table>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>
+                <strong>이름</strong>
+              </th>
+              <th>
+                <strong>생년월일</strong>
+              </th>
+              <th>
+                <strong>등록번호</strong>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredUsers.map((user) => {
+              return (
+                <tr key={user.id} onClick={() => handleClick(user.id)} className="cursor-pointer hover:bg-gray-100">
+                  <td>{user.name}</td>
+                  <td>{formatBirthDate(user?.birth)}</td>
+                  <td>{user?.register || "-"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
+
+      <Link
+        href="/register"
+        className="mt-4 w-full bg-blue-500 text-white p-4 rounded hover:bg-blue-600 transition-colors text-center"
+      >
+        환자 등록
+      </Link>
     </div>
   );
 }
