@@ -11,7 +11,7 @@ dayjs.extend(timezone);
 dayjs.locale("ko");
 
 export const metadata: Metadata = {
-  title: "동탄연세맑은내과 투석실 관리 시스템",
+  title: "동탄연세맑은내과 투석실 관리페이지",
   description: "투석실",
 };
 
