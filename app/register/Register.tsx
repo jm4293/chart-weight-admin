@@ -61,8 +61,6 @@ export default function Register() {
         name="register"
         placeholder="등록번호"
         className="w-full mb-8 border border-gray-300 "
-        maxLength={6}
-        max={6}
         required
       />
       <button

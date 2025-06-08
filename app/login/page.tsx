@@ -27,7 +27,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col items-center">
       <h1 className="text-2xl font-bold mb-4">관리페이지 로그인</h1>
-      <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="w-full max-w-[1024px] flex flex-col gap-4">
         <input
           type="text"
           placeholder="아이디"
